@@ -120,6 +120,7 @@ class Physics(_control.Physics):
     """
     self._warnings_cause_exception = True
     self._reload_from_data(data)
+    self.main_camera = None 
 
   @contextlib.contextmanager
   def suppress_physics_errors(self):
@@ -218,11 +219,16 @@ class Physics(_control.Physics):
         width=width,
         camera_id=camera_id,
         scene_callback=scene_callback)
-    image = camera.render(
-        overlays=overlays, depth=depth, segmentation=segmentation,
+    rgb_image = camera.render(
+        overlays=overlays, depth=False, segmentation=segmentation,
         scene_option=scene_option, render_flag_overrides=render_flag_overrides)
+    depth_image = camera.render(
+        overlays=overlays, depth=True, segmentation=segmentation,
+        scene_option=scene_option, render_flag_overrides=render_flag_overrides)
+    rgbd_image = np.concatenate([rgb_image,depth_image], axis=-1)
+    camera_mat = camera.matrices()
     camera._scene.free()  # pylint: disable=protected-access
-    return image
+    return dict(rgbd=rgbd_image, camera_mat=camera_mat)
 
   def get_state(self):
     """Returns the physics state.
