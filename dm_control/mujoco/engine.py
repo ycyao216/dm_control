@@ -225,7 +225,7 @@ class Physics(_control.Physics):
     depth_image = camera.render(
         overlays=overlays, depth=True, segmentation=segmentation,
         scene_option=scene_option, render_flag_overrides=render_flag_overrides)
-    rgbd_image = np.concatenate([rgb_image,depth_image], axis=-1)
+    rgbd_image = np.concatenate([rgb_image,depth_image[...,None]], axis=-1)
     camera_mat = camera.matrices()
     camera._scene.free()  # pylint: disable=protected-access
     return dict(rgbd=rgbd_image, camera_mat=camera_mat)
