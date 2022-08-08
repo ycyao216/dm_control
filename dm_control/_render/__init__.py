@@ -47,59 +47,43 @@ def _import_osmesa():
   return OSMesaContext
 # pylint: enable=g-import-not-at-top
 
-
-def _no_renderer():
-  def no_renderer(*args, **kwargs):
-    del args, kwargs
-    raise RuntimeError('No OpenGL rendering backend is available.')
-  return no_renderer
-
-
-_ALL_RENDERERS = (
+_ALL_RENDERERS = collections.OrderedDict([
     (constants.GLFW, _import_glfw),
     (constants.EGL, _import_egl),
     (constants.OSMESA, _import_osmesa),
-)
-
-_NO_RENDERER = (
-    (constants.NO_RENDERER, _no_renderer),
-)
+])
 
 
 if BACKEND is not None:
   # If a backend was specified, try importing it and error if unsuccessful.
-  import_func = None
-  for names, importer in _ALL_RENDERERS + _NO_RENDERER:
-    if BACKEND in names:
-      import_func = importer
-      BACKEND = names[0]  # canonicalize the renderer name
-      break
-  if import_func is None:
-    all_names = set()
-    for names, _ in _ALL_RENDERERS + _NO_RENDERER:
-      all_names.update(names)
+  try:
+    import_func = _ALL_RENDERERS[BACKEND]
+  except KeyError:
     raise RuntimeError(
         'Environment variable {} must be one of {!r}: got {!r}.'
-        .format(constants.MUJOCO_GL, sorted(all_names), BACKEND))
+        .format(constants.MUJOCO_GL, _ALL_RENDERERS.keys(), BACKEND))
   logging.info('MUJOCO_GL=%s, attempting to import specified OpenGL backend.',
                BACKEND)
-  Renderer = import_func()
+  Renderer = import_func()  # pylint: disable=invalid-name
 else:
   logging.info('MUJOCO_GL is not set, so an OpenGL backend will be chosen '
                'automatically.')
   # Otherwise try importing them in descending order of priority until
   # successful.
-  for names, import_func in _ALL_RENDERERS:
+  for name, import_func in _ALL_RENDERERS.items():
     try:
       Renderer = import_func()
-      BACKEND = names[0]
-      logging.info('Successfully imported OpenGL backend: %s', names[0])
+      BACKEND = name
+      logging.info('Successfully imported OpenGL backend: %s', name)
       break
     except ImportError:
-      logging.info('Failed to import OpenGL backend: %s', names[0])
+      logging.info('Failed to import OpenGL backend: %s', name)
   if BACKEND is None:
     logging.info('No OpenGL backend could be imported. Attempting to create a '
                  'rendering context will result in a RuntimeError.')
-    Renderer = _no_renderer()
 
-USING_GPU = BACKEND in constants.EGL + constants.GLFW
+    def Renderer(*args, **kwargs):  # pylint: disable=function-redefined,invalid-name
+      del args, kwargs
+      raise RuntimeError('No OpenGL rendering backend is available.')
+
+USING_GPU = BACKEND in (constants.EGL, constants.GLFW)

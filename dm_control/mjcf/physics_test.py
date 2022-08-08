@@ -66,9 +66,7 @@ class PhysicsTest(parameterized.TestCase):
       ('geom', True),
       ('geom', False),
       ('joint', True),
-      ('joint', False),
-      ('actuator', True),
-      ('actuator', False))
+      ('joint', False))
   def test_id(self, namespace, single_element):
     elements, full_identifiers = self.sample_elements(namespace, single_element)
     actual = self.physics.bind(elements).element_id
@@ -205,22 +203,6 @@ class PhysicsTest(parameterized.TestCase):
     physics = mjcf.Physics.from_mjcf_model(model)
     mass = physics.bind(model.worldbody).subtreemass
     self.assertEqual(mass, expected_mass)
-
-  def test_bind_stateful_actuator(self):
-    model = mjcf.RootElement()
-    body = model.worldbody.add('body')
-    body.add('joint', name='joint')
-    body.add('geom', type='sphere', size=[1])
-
-    model.actuator.add(
-        'general', name='act1', joint='joint', dyntype='integrator')
-
-    physics = mjcf.Physics.from_mjcf_model(model)
-    actuator = model.find('actuator', 'act1')
-    binding = physics.bind(actuator)
-
-    # This used to crash
-    self.assertEqual(0, binding.act)
 
   def test_caching(self):
     all_joints = self.model.find_all('joint')

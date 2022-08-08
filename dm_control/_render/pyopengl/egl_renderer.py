@@ -26,13 +26,13 @@ from dm_control._render import executor
 PYOPENGL_PLATFORM = os.environ.get(constants.PYOPENGL_PLATFORM)
 
 if not PYOPENGL_PLATFORM:
-  os.environ[constants.PYOPENGL_PLATFORM] = constants.EGL[0]
-elif PYOPENGL_PLATFORM != constants.EGL[0]:
+  os.environ[constants.PYOPENGL_PLATFORM] = constants.EGL
+elif PYOPENGL_PLATFORM != constants.EGL:
   raise ImportError(
       'Cannot use EGL rendering platform. '
       'The PYOPENGL_PLATFORM environment variable is set to {!r} '
       '(should be either unset or {!r}).'
-      .format(PYOPENGL_PLATFORM, constants.EGL[0]))
+      .format(PYOPENGL_PLATFORM, constants.EGL))
 
 
 # pylint: disable=g-import-not-at-top
@@ -100,7 +100,7 @@ class EGLContext(base.ContextBase):
 
   def _platform_init(self, unused_max_width, unused_max_height):
     """Initialization this EGL context."""
-    num_configs = ctypes.c_long(0)
+    num_configs = ctypes.c_long()
     config_size = 1
     config = EGL.EGLConfig()
     EGL.eglReleaseThread()

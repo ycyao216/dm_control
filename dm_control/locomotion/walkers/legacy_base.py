@@ -33,7 +33,6 @@ class Walker(base.Walker):
 
   def _build(self, initializer=None):
     self._end_effectors_pos_sensors = []
-    self._obs_on_other = {}
     try:
       self._initializers = tuple(initializer)
     except TypeError:
@@ -67,8 +66,7 @@ class Walker(base.Walker):
     """
     return 0.
 
-  @property
-  @abc.abstractmethod
+  @abc.abstractproperty
   def ground_contact_geoms(self):
     """Geoms in this walker that are expected to be in contact with the ground.
 
@@ -102,10 +100,6 @@ class Walker(base.Walker):
   @property
   def body_geom_ids(self):
     return self._body_geom_ids
-
-  @property
-  def obs_on_other(self):
-    return self._obs_on_other
 
   def end_effector_contacts(self, physics):
     """Collect the contacts with the end effectors.
@@ -153,13 +147,11 @@ class Walker(base.Walker):
                                                          contact.geom2), 0.))
     return contacts
 
-  @property
-  @abc.abstractmethod
+  @abc.abstractproperty
   def end_effectors(self):
     raise NotImplementedError
 
-  @property
-  @abc.abstractmethod
+  @abc.abstractproperty
   def egocentric_camera(self):
     raise NotImplementedError
 

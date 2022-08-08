@@ -22,11 +22,6 @@ MUJOCO_GL = 'MUJOCO_GL'
 PYOPENGL_PLATFORM = 'PYOPENGL_PLATFORM'
 
 # Renderer platform specifiers.
-# All values in each tuple are synonyms for the MUJOCO_GL environment variable.
-# The first entry in each tuple is considered "canonical", and is the one
-# assigned to the _render.BACKEND variable.
-OSMESA = ('osmesa',)
-GLFW = ('glfw', 'on', 'enable', 'enabled', 'true', '1', '')
-EGL = ('egl',)
-NO_RENDERER = ('off', 'disable', 'disabled', 'false', '0')
-
+OSMESA = 'osmesa'
+GLFW = 'glfw'
+EGL = 'egl'
