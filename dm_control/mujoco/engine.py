@@ -225,10 +225,9 @@ class Physics(_control.Physics):
     depth_image = camera.render(
         overlays=overlays, depth=True, segmentation=segmentation,
         scene_option=scene_option, render_flag_overrides=render_flag_overrides)
-    depth_image = depth_image[None,...]
-    camera_mat = camera.matrices()
+    depth_image = depth_image[...,None]
     camera._scene.free()  # pylint: disable=protected-access
-    return dict(rgb=rgb_image, depth = depth_image, camera_mat=camera_mat)
+    return dict(rgb=rgb_image, depth = depth_image, camera = camera)
 
   def get_state(self):
     """Returns the physics state.
